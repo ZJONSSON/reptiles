@@ -1,0 +1,13 @@
+{
+  "name": "reptiles",
+  "version": "0.0.1",
+  "main": "reptiles-client.js",
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt"
+  ],
+  "dependencies": {
+    "bluebird": "~2.3.11",
+    "clues": "^2.1.1"
+  }
+}
