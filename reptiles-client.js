@@ -44,11 +44,16 @@
 
           items.slice(0,items.length-1)
             .forEach(function(item) {
-              var m = /\"(.*)\" \: (.*)/.exec(item);
+              var m = /\s*\"(.*?)\"\s*\:\s*(.*)/.exec(item);
               if (m) {
-                var key = m[1];
-                var value = JSON.parse(m[2]);
+                var key = m[1],value;
+                try {
+                  value = JSON.parse(m[2]);
+                } catch(e) {
+                  value = {error:true,message:'JSON parse error: '+e};
+                }
                 if (!queue[key]) return;
+                self.data[key] = value;
                 if (value && value.error)
                   queue[key].reject(value);
                 else
@@ -112,13 +117,16 @@
     var self = this;
     var keys = element.dataset.reptile.split(','),key;
 
-    function renderKey() {
+    function renderKey(e) {
       key = keys.shift();
-      if (!self.logic[key]) throw 'not found '+key;
+      if (!self.logic[key]) throw e || 'not found '+key;
       return self.solve(self.logic[key],{element:element})
         .catch(renderKey);
     }
-    return renderKey();
+    return renderKey()
+      .catch(function(e) {
+        element.innerHTML = 'Error: '+e.message+' ('+e.ref+')';
+      })
   };
 
   reptile.prototype.renderAll = function(element) {
