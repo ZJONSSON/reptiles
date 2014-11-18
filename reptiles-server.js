@@ -35,6 +35,11 @@ module.exports = function(api,options) {
         .forEach(function(key) {
           req.body[key] = req.query[key];
         });
+
+      Object.keys(req.params || {})
+        .forEach(function(key) {
+          req.body[key] = req.params[key];
+        });
       
       if (options.safe) {
         Object.keys(req.body).forEach(function(key) {
