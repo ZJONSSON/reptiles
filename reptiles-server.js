@@ -1,5 +1,14 @@
 var clues = require('clues');
 
+function jsonReplacer(key, value) {
+  if (value && typeof value.solve === 'function') {
+    var facts = [],d;
+    for (d in value.facts) facts.push(d);
+    return {'clues':true,logic:Object.keys(value.logic),facts:facts};
+  }
+  return value;
+}
+
 module.exports = function(api,options) {
   api = api || {};
   options = options || {};
@@ -8,6 +17,7 @@ module.exports = function(api,options) {
     var message = {
       message : (!options.debug && e.stack) ? 'Internal Error' : e.message,
       ref : e.ref,
+      fullref : e.fullref,
       error : true
     };
 
@@ -19,17 +29,23 @@ module.exports = function(api,options) {
     return message;
   }
 
-  return function(select) {
+  function noop() {};
+
+  return function(select,options) {
+    options = options || {};
     if (typeof(select) === 'string')
       select = select.split(',');
 
+
     return function (req,res) {
+      var _res = (!options.quiet) ? res : {set: noop, write: noop, flush: noop},
+          pretty = req.query.pretty && 2;
       req.body = req.body || {};
-      res.set('Transfer-Encoding','chunked');
-      res.set('Content-Type', 'application/json; charset=UTF-8');
-      res.set('Cache-Control', 'no-cache, no-store, max-age=0');
-      res.write('{                                     \t\n\n');
-      if (typeof(res.flush) == 'function') res.flush();
+      _res.set('Transfer-Encoding','chunked');
+      _res.set('Content-Type', 'application/json; charset=UTF-8');
+      _res.set('Cache-Control', 'no-cache, no-store, max-age=0');
+      _res.write('{                                     \t\n\n');
+      if (typeof(res.flush) == 'function') _res.flush();
 
       Object.keys(req.query || {})
         .forEach(function(key) {
@@ -54,8 +70,13 @@ module.exports = function(api,options) {
           return c.solve(ref,{res:res,req:req},'__user__')
             .catch(stringifyError)
             .then(function(d) {
-              res.write('  "'+ref+'" : '+JSON.stringify(d)+',\t\n');
-              if (typeof(res.flush) == 'function') res.flush();
+              if (d === undefined) d = null;
+              var txt = {};
+              txt[ref] = d;
+              txt = JSON.stringify(txt,jsonReplacer,pretty);
+              _res.write(txt.slice(1,txt.length-1)+',\t\n');
+              //_res.write('  "'+ref+'" : '+JSON.stringify(d,jsonReplacer,pretty)+',\t\n');
+              if (typeof(res.flush) == 'function') _res.flush();
             });
         });
 
@@ -66,8 +87,8 @@ module.exports = function(api,options) {
       });
 
       return clues.prototype.Promise.all(data)
-        .then(function(d) {
-          res.write('  "__end__" : true\t\n}');
+        .then(function() {
+          _res.write('  "__end__" : true\t\n}');
           res.end();
         });
     };
