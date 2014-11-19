@@ -113,6 +113,13 @@
     return result.promise;
   };
 
+  reptile.prototype.refresh = function(inputs) {
+    if (inputs) this.inputs = inputs;
+    this.data = Object.create(inputs);
+    this.facts = Object.create(this.inputs);
+    return this;
+  };
+
   reptile.prototype.render = function(element) {
     var self = this;
     var keys = element.dataset.reptile.split(','),key;
@@ -126,7 +133,7 @@
     return renderKey()
       .catch(function(e) {
         element.innerHTML = 'Error: '+e.message+' ('+e.ref+')';
-      })
+      });
   };
 
   reptile.prototype.renderAll = function(element) {
