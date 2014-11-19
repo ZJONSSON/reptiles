@@ -40,6 +40,8 @@
         function processBuffer(text) {
           buffer += text;
           var items = buffer.split(',\t\n');
+          if (items.length < 2) return;
+
           buffer = items.slice(items.length-1);
 
           items.slice(0,items.length-1)
@@ -71,7 +73,6 @@
           r.setRequestHeader('Content-Type','application/json;charset=UTF-8');
           r.send(JSON.stringify(self.inputs));
           r.onprogress = function() {
-            buffer += r.responseText.slice(last);
             processBuffer(r.responseText.slice(last));
             last = r.responseText.length;
           };
