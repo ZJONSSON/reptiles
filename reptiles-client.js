@@ -82,7 +82,10 @@
           };
         } else {
           // In node.js we use request.js
-          var options = Object.create(self.options.request || {});
+          var options = {};
+          if (self.options.request) Object.keys(self.options.request).forEach(function(key) {
+            options[key] = self.options.request[key];
+          });
           options.url = self.url+Object.keys(queue);
           options.method = options.method || 'POST';
           options.json = self.inputs;
