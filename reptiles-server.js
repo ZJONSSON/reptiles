@@ -38,7 +38,6 @@ module.exports = function(api,options) {
     if (typeof(select) === 'string')
       select = select.split(',');
 
-
     return function (req,res) {
       var _res = (!options.quiet) ? res : {set: noop, write: noop, flush: noop},
           pretty = req.query.pretty && 2;
@@ -77,7 +76,6 @@ module.exports = function(api,options) {
               txt[ref] = d;
               txt = JSON.stringify(txt,jsonReplacer,pretty);
               _res.write(txt.slice(1,txt.length-1)+',\t\n');
-              //_res.write('  "'+ref+'" : '+JSON.stringify(d,jsonReplacer,pretty)+',\t\n');
               if (typeof(res.flush) == 'function') _res.flush();
             });
         });
@@ -90,7 +88,7 @@ module.exports = function(api,options) {
 
       return clues.prototype.Promise.all(data)
         .then(function() {
-          _res.write('  "__end__" : true\t\n}');
+          _res.write('"__end__" : true\t\n}');
           res.end();
         });
     };

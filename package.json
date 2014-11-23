@@ -1,6 +1,6 @@
 {
   "name": "reptiles",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "reptiles-server.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "clues": "2.5.0-beta6",
+    "clues": "2.5.0-beta7",
     "request": "^2.47.0"
   }
 }
