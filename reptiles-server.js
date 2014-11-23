@@ -6,6 +6,8 @@ function jsonReplacer(key, value) {
     for (d in value.facts) facts.push(d);
     return {'clues':true,logic:Object.keys(value.logic),facts:facts};
   }
+  if (typeof value === 'function')
+    return '[Function]';
   return value;
 }
 
