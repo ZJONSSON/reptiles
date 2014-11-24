@@ -40,12 +40,13 @@ module.exports = function(api,options) {
 
     return function (req,res) {
       var _res = (!options.quiet) ? res : {set: noop, write: noop, flush: noop},
-          pretty = req.query.pretty && 2;
+          pretty = req.query.pretty && 2,
+          first = '{                                     \t\n\n';
       req.body = req.body || {};
       _res.set('Transfer-Encoding','chunked');
       _res.set('Content-Type', 'application/json; charset=UTF-8');
       _res.set('Cache-Control', 'no-cache, no-store, max-age=0');
-      _res.write('{                                     \t\n\n');
+      
       if (typeof(res.flush) == 'function') _res.flush();
 
       Object.keys(req.query || {})
@@ -74,7 +75,8 @@ module.exports = function(api,options) {
               if (d === undefined) d = null;
               var txt = {};
               txt[ref] = d;
-              txt = JSON.stringify(txt,jsonReplacer,pretty);
+              txt = first+JSON.stringify(txt,jsonReplacer,pretty);
+              first = '';
               _res.write(txt.slice(1,txt.length-1)+',\t\n');
               if (typeof(res.flush) == 'function') _res.flush();
             });
