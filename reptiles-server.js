@@ -11,9 +11,9 @@ function jsonReplacer(key, value) {
   return value;
 }
 
-module.exports = function(api,options) {
+module.exports = function(api,config) {
   api = api || {};
-  options = options || {};
+  config = config || {};
   
   function stringifyError(e) {
     var err = {error: true};
@@ -21,7 +21,7 @@ module.exports = function(api,options) {
       .forEach(function(key) {
         err[key] = e[key];
       });
-    if (e.stack && !options.debug) {
+    if (e.stack && !config.debug) {
       err.message = 'Internal Error';
       delete e.stack;
     }
@@ -57,17 +57,11 @@ module.exports = function(api,options) {
           req.body[key] = req.params[key];
         });
       
-      if (options.safe) {
-        Object.keys(req.body).forEach(function(key) {
-          if (api[key]) delete req.body[key];
-        });
-      }
-
-      var c = clues(api,req.body);
+      var c = clues(api,config.unsafe && req.body);
 
       var data = (select || req.param("fn").split(','))
         .map(function(ref) {
-          return c.solve(ref,{res:res,req:req},'__user__')
+          return c.solve(ref,{res:res,req:req,input:req.body},'__user__')
             .catch(stringifyError)
             .then(function(d) {
               if (d === undefined) d = null;
