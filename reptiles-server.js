@@ -16,19 +16,17 @@ module.exports = function(api,options) {
   options = options || {};
   
   function stringifyError(e) {
-    var message = {
-      message : (!options.debug && e.stack) ? 'Internal Error' : e.message,
-      ref : e.ref,
-      fullref : e.fullref,
-      error : true
-    };
-
-    if (options.debug) {
-      message.stack = e.stack;
-      message.caller = e.caller;
+    var err = {error: true};
+    Object.getOwnPropertyNames(e)
+      .forEach(function(key) {
+        err[key] = e[key];
+      });
+    if (e.stack && !options.debug) {
+      err.message = 'Internal Error';
+      delete e.stack;
     }
 
-    return message;
+    return err;
   }
 
   function noop() {};
