@@ -48,7 +48,7 @@
             .forEach(function(item) {
               var m = /\s*\"(.*?)\"\s*\:\s*(.*)/.exec(item);
               if (m) {
-                var key = m[1],value;
+                var key = m[1].value;
                 try {
                   value = JSON.parse(m[2]);
                 } catch(e) {
