@@ -36,6 +36,7 @@
         if (!Object.keys(self.queue).length) return resolve(true);
         var queue = self.queue;
         self.queue = {};
+        var buffer = "";
               
         function processBuffer(text) {
           buffer += text;
